@@ -22,6 +22,7 @@ contador_clientes = 0
 
 hash_objetivo = ""
 bandera_contraseña_encontrada = threading.Event()
+bandera_esperando_reconfig = threading.Event()
 
 ventana = None
 estado_servidor_var = None
@@ -74,6 +75,8 @@ def inicializar_tareas_y_hash(contraseña_plana, longitud_texto):
 
     tareas = []
     bandera_contraseña_encontrada.clear()
+    # Nuevo
+    bandera_esperando_reconfig.clear()
 
     with candado_clientes:
         num_clientes = len(clientes_conectados)
@@ -131,6 +134,7 @@ def inicializar_tareas_y_hash(contraseña_plana, longitud_texto):
         f"Hash configurado para contraseña '{contraseña_plana}' (len={longitud}): {hash_objetivo}"
     )
 
+    entrada_contraseña_plana.delete(0, tk.END)
 
 
 def actualizar_tabla_tareas():
@@ -232,12 +236,24 @@ def atender_cliente(conexion, direccion):
             ventana.after(0, agregar_log, f"{nombre_cliente} esperando configuración del hash...")
             time.sleep(0.5)
 
-        tarea = asignar_tarea_a_cliente(nombre_cliente)
-        if tarea is None:
-            enviar_json(conexion, {"tipo": "sin_tarea"})
-            ventana.after(0, agregar_log, f"Sin tareas disponibles para {nombre_cliente}.")
+        if bandera_esperando_reconfig.is_set():
+            enviar_json(conexion, {"tipo": "esperando_reconfig"})
+            ventana.after(0, agregar_log, f"{nombre_cliente} debe esperar nueva configuración.")
             conexion.close()
             return
+
+
+        tarea = asignar_tarea_a_cliente(nombre_cliente)
+        if tarea is None:
+            if bandera_contraseña_encontrada.is_set():
+                enviar_json(conexion, {"tipo": "contraseña_ya_encontrada"})
+                ventana.after(0, agregar_log, f"{nombre_cliente}: la contraseña ya fue encontrada.")
+            
+            else:
+                enviar_json(conexion, {"tipo": "sin_tarea"})
+                ventana.after(0, agregar_log, f"Sin tareas disponibles para {nombre_cliente}.")
+                conexion.close()
+                return
 
         mensaje_tarea = {
             "tipo": "tarea",
@@ -262,6 +278,7 @@ def atender_cliente(conexion, direccion):
                 ventana.after(0, agregar_log,
                               f"¡Contraseña encontrada por {nombre_cliente}!: {contraseña}")
                 bandera_contraseña_encontrada.set()
+                bandera_esperando_reconfig.set()
                 ventana.after(0, contraseña_encontrada_var.set,
                               f"Contraseña encontrada: {contraseña} (por {nombre_cliente})")
                 ventana.after(0, estado_servidor_var.set,
@@ -285,6 +302,21 @@ def atender_cliente(conexion, direccion):
             pass
 
 
+
+def verificar_fin_busqueda():
+    """Verifica si todas las tareas han terminado sin encontrar la contraseña"""
+    with candado_tareas:
+        todas_terminadas = all(
+            t["estado"] in ["finalizada", "encontrada"] for t in tareas
+        )
+        
+        if todas_terminadas and not bandera_contraseña_encontrada.is_set():
+            ventana.after(0, estado_servidor_var.set,
+                          "Todas las tareas completadas. Contraseña no encontrada en el espacio de búsqueda.")
+            ventana.after(0, agregar_log,
+                          "Todas las tareas finalizadas. Puedes configurar una nueva contraseña.")
+            bandera_esperando_reconfig.set()
+            
 # ===================== HILO PRINCIPAL DEL SERVIDOR =====================
 
 def hilo_servidor():
