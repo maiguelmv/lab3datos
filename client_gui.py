@@ -1,4 +1,4 @@
-# client_gui.py
+
 import socket
 import json
 import threading
@@ -9,7 +9,6 @@ import time
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-# ===================== CONFIGURACIÓN DE RED =====================
 
 HOST = "127.0.0.1"
 PORT = 5000
@@ -20,7 +19,6 @@ candado_intentos = threading.Lock()
 candado_envio = threading.Lock()
 
 
-# ===================== UTILIDADES JSON / HASH =====================
 
 def enviar_json(socket_cliente, datos):
     mensaje = json.dumps(datos).encode("utf-8")
@@ -43,7 +41,6 @@ def calcular_hash_sha256(cadena):
     return hashlib.sha256(cadena.encode("utf-8")).hexdigest()
 
 
-# ===================== TRABAJO DE FUERZA BRUTA =====================
 
 def hilo_trabajo(info_tarea, id_hilo, total_hilos, socket_cliente,
                  callback_estado, callback_contraseña_gui):
@@ -90,7 +87,6 @@ def hilo_trabajo(info_tarea, id_hilo, total_hilos, socket_cliente,
             return
 
 
-# ===================== LÓGICA PRINCIPAL DEL CLIENTE =====================
 
 def hilo_cliente_principal(root, vars_gui, boton_conectar):
     global intentos_realizados
@@ -186,13 +182,12 @@ def hilo_cliente_principal(root, vars_gui, boton_conectar):
         root.after(0, lambda: boton_conectar.config(state="normal"))
 
 
-# ===================== INTERFAZ GRÁFICA =====================
 
 def crear_interfaz_cliente():
     root = tk.Tk()
     root.title("Cliente Fuerza Bruta Distribuida")
     root.geometry("780x460")
-    root.configure(bg="#020617")  # fondo oscuro
+    root.configure(bg="#020617")  
 
     style = ttk.Style()
     try:
@@ -200,11 +195,9 @@ def crear_interfaz_cliente():
     except:
         pass
 
-    # Tarjeta principal centrada con padding, usando pack (no place)
     card = tk.Frame(root, bg="#0f172a", bd=1, relief="ridge")
     card.pack(expand=True, fill="both", padx=30, pady=30)
 
-    # Título
     titulo = tk.Label(
         card,
         text="Cliente de Fuerza Bruta Distribuida",
@@ -214,7 +207,6 @@ def crear_interfaz_cliente():
     )
     titulo.pack(pady=(10, 8))
 
-    # Variables de texto
     texto_estado = tk.StringVar(value="Esperando para conectar...")
     texto_hash = tk.StringVar(value="Hash objetivo: -")
     texto_rango = tk.StringVar(value="Rango: -")
@@ -223,7 +215,6 @@ def crear_interfaz_cliente():
     texto_tiempo = tk.StringVar(value="Tiempo: 0.0 s")
     texto_velocidad = tk.StringVar(value="Velocidad: -")
 
-    # Panel de información
     panel_info = tk.Frame(card, bg="#111827")
     panel_info.pack(fill="x", padx=20, pady=(0, 8))
 
@@ -246,7 +237,6 @@ def crear_interfaz_cliente():
                          bg="#111827", fg="#d1d5db", anchor="w")
     lbl_rango.pack(anchor="w", pady=(2, 6))
 
-    # Panel de métricas
     panel_metricas = tk.Frame(card, bg="#020617")
     panel_metricas.pack(fill="x", padx=20, pady=(0, 8))
 
@@ -270,7 +260,6 @@ def crear_interfaz_cliente():
                              bg="#111827", fg="#e5e7eb")
     lbl_velocidad.pack(anchor="w", pady=(0, 6))
 
-    # Panel de resultado
     panel_resultado = tk.Frame(card, bg="#020617")
     panel_resultado.pack(fill="x", padx=20, pady=(0, 8))
 
@@ -287,7 +276,6 @@ def crear_interfaz_cliente():
                           font=("Segoe UI", 11, "bold"))
     lbl_contra.pack(anchor="w", pady=(0, 6))
 
-    # Botón
     def boton_conectar_callback():
         texto_estado.set("Conectando al servidor...")
         texto_contraseña.set("Contraseña encontrada: -")

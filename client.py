@@ -12,7 +12,6 @@ PORT = 5000
 contraseña_encontrada = threading.Event()
 
 
-# ===================== FUNCIONES DE UTILIDAD =====================
 
 def enviar_json(socket_cliente, datos):
     mensaje = json.dumps(datos).encode("utf-8")
@@ -34,7 +33,6 @@ def calcular_hash_sha256(cadena):
     return hashlib.sha256(cadena.encode("utf-8")).hexdigest()
 
 
-# ===================== TRABAJO DE FUERZA BRUTA REAL =====================
 
 def hilo_trabajo(info_tarea, id_hilo, total_hilos, socket_cliente):
     id_tarea = info_tarea["id_tarea"]
@@ -43,7 +41,7 @@ def hilo_trabajo(info_tarea, id_hilo, total_hilos, socket_cliente):
     longitud = info_tarea["longitud"]
     hash_objetivo = info_tarea["hash"]
 
-    caracteres = string.ascii_lowercase  # "abcdefghijklmnopqrstuvwxyz"
+    caracteres = string.ascii_lowercase  
 
     print(f"[CLIENTE] Hilo {id_hilo} trabajando en tarea {id_tarea}...")
 
@@ -76,9 +74,6 @@ def hilo_trabajo(info_tarea, id_hilo, total_hilos, socket_cliente):
                 "password": candidato
             })
             return
-
-
-# ===================== FUNCIÓN PRINCIPAL DEL CLIENTE =====================
 
 def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as cliente:

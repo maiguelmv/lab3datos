@@ -35,7 +35,6 @@ entrada_longitud_contraseña = None
 
 
 
-# ===================== UTILIDADES JSON =====================
 
 def enviar_json(conexion, datos):
     mensaje = json.dumps(datos).encode("utf-8")
@@ -53,7 +52,6 @@ def recibir_json(conexion):
         return None
 
 
-# ===================== GESTIÓN DE TAREAS =====================
 
 def inicializar_tareas_y_hash(contraseña_plana, longitud_texto):
     global hash_objetivo, tareas
@@ -186,8 +184,6 @@ def asignar_tarea_a_cliente(nombre_cliente):
     return None
 
 
-# ===================== GESTIÓN DE CLIENTES =====================
-
 def agregar_cliente(nombre_cliente, direccion):
     global contador_clientes
 
@@ -218,7 +214,7 @@ def agregar_log(texto):
     caja_log.see(tk.END)
 
 
-# ===================== MANEJO DE CADA CLIENTE =====================
+
 
 def atender_cliente(conexion, direccion):
     try:
@@ -316,8 +312,7 @@ def verificar_fin_busqueda():
             ventana.after(0, agregar_log,
                           "Todas las tareas finalizadas. Puedes configurar una nueva contraseña.")
             bandera_esperando_reconfig.set()
-            
-# ===================== HILO PRINCIPAL DEL SERVIDOR =====================
+
 
 def hilo_servidor():
     global socket_servidor, servidor_activo
@@ -354,9 +349,6 @@ def hilo_servidor():
         servidor_activo = False
         ventana.after(0, estado_servidor_var.set, "Servidor detenido.")
 
-
-# ===================== ACCIONES DE LA GUI =====================
-
 def accion_configurar_hash():
     """
     Lee la contraseña en texto plano y la longitud desde la GUI,
@@ -365,7 +357,7 @@ def accion_configurar_hash():
     contraseña_plana = entrada_contraseña_plana.get().strip()
     longitud_texto = entrada_longitud_contraseña.get().strip()
     if not longitud_texto:
-        longitud_texto = "3"  # valor por defecto
+        longitud_texto = "3"  
     inicializar_tareas_y_hash(contraseña_plana, longitud_texto)
 
 def accion_iniciar_servidor():
@@ -397,8 +389,6 @@ def accion_detener_servidor():
     estado_servidor_var.set("Deteniendo servidor...")
     agregar_log("Servidor detenido manualmente.")
 
-
-# ===================== INTERFAZ GRÁFICA (DARK MODE) =====================
 
 def crear_interfaz_servidor():
     global ventana, estado_servidor_var, contraseña_encontrada_var
@@ -475,7 +465,7 @@ def crear_interfaz_servidor():
         relief="flat"
     )
     entrada_longitud_contraseña.delete(0, tk.END)
-    entrada_longitud_contraseña.insert(0, "3")  # valor por defecto
+    entrada_longitud_contraseña.insert(0, "3")  
     entrada_longitud_contraseña.grid(row=2, column=1, padx=4, pady=2, sticky="w")
 
     btn_iniciar = ttk.Button(box_config, text="Iniciar servidor",

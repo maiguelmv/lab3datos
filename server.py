@@ -15,7 +15,6 @@ hash_objetivo = hashlib.sha256("abc".encode("utf-8")).hexdigest()
 candado_tareas = threading.Lock()
 
 
-# ===================== FUNCIONES DE UTILIDAD =====================
 
 def enviar_json(conexion, datos):
     mensaje = json.dumps(datos).encode("utf-8")
@@ -33,7 +32,6 @@ def recibir_json(conexion):
         return None
 
 
-# ===================== MANEJO DE CLIENTES =====================
 
 def atender_cliente(conexion, direccion):
 
@@ -42,7 +40,6 @@ def atender_cliente(conexion, direccion):
     mensaje_inicial = recibir_json(conexion)
     print(f"[SERVIDOR] Mensaje inicial recibido: {mensaje_inicial}")
 
-    # Buscar una tarea que asignar
     with candado_tareas:
         if tareas:
             tarea = tareas.pop(0)
@@ -60,7 +57,6 @@ def atender_cliente(conexion, direccion):
             conexion.close()
             return
 
-    # Esperar respuesta del cliente
     while True:
         mensaje = recibir_json(conexion)
         if mensaje is None:
@@ -79,8 +75,6 @@ def atender_cliente(conexion, direccion):
 
     conexion.close()
 
-
-# ===================== FUNCIÓN PRINCIPAL =====================
 
 def main():
     print("[SERVIDOR] Iniciando servidor...")
